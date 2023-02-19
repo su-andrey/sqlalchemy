@@ -47,7 +47,7 @@ def login():
 
 @app.route('/')
 def main():
-    return 'Миссия Колонизация Марса'
+    return render_template('base.html')
 
 
 if __name__ == '__main__':
