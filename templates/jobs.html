@@ -1,8 +1,9 @@
 {% extends "base.html" %}
-
 {% block content %}
     <h2>Список профессий</h2>
+    <ol class="rounded">
     {% for item in profs %}
-        <li>{{item}}</li>
+        <li><a>{{item}}</a></li>
     {% endfor %}
+    </ol>
 {% endblock %}

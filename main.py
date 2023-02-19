@@ -1,13 +1,11 @@
-import datetime
-
-from flask import Flask
+from flask import Flask, request
 from flask import redirect, render_template
 from flask_login import LoginManager
-from flask_login import login_user, login_required
+from flask_login import login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms import EmailField, PasswordField, BooleanField, SubmitField, StringField
 from wtforms.validators import DataRequired
-
+from werkzeug.security import generate_password_hash, check_password_hash
 from data import db_session
 from data.jobs import Jobs
 from data.users import User
@@ -50,7 +48,7 @@ def login():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
-        if user and user.check_password == form.password.data:
+        if user and check_password_hash(user.check_password, form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
     return render_template('login.html', title='Авторизация', form=form)
@@ -62,6 +60,61 @@ def main():
     db_sess = db_session.create_session()
     profs = [job for job in db_sess.query(Jobs)]
     return render_template('jobs.html', profs=profs)
+
+def hi():
+    return redirect('/authorize')
+
+
+class Authorize(FlaskForm):
+    enter = SubmitField('Войти')
+    sign_up = SubmitField('Зарегестрироваться')
+
+
+@app.route('/authorize', methods=['GET', 'POST'])
+def authorize():
+    form = Authorize()
+    if request.method == 'POST':
+        try:
+            if request.form['enter']:
+                return redirect('/login')
+        except Exception:
+            return redirect('/register')
+    elif request.method == 'GET':
+        return render_template('authorize.html', form=form)
+
+
+class RegisterForm(FlaskForm):
+    email = EmailField('Почта', validators=[DataRequired()])
+    name = StringField('Имя', validators=[DataRequired()])
+    surname = StringField('Фамилия', validators=[DataRequired()])
+    age = StringField('Возраст', validators=[DataRequired()])
+    position = StringField('Позиция', validators=[DataRequired()])
+    speciality = StringField('Специальность', validators=[DataRequired()])
+    address = StringField('Адресс', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    remember_me = BooleanField('Запомнить меня')
+    submit = SubmitField('Войти')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        adress = db_sess.query(User).filter(User.email == form.email.data).first()
+        if not adress:
+            user = User()
+            user.email = form.email.data
+            user.age = form.age.data
+            user.surname = form.surname.data
+            user.name = form.name.data
+            user.speciality = form.speciality.data
+            user.position = form.position.data
+            user.check_password = generate_password_hash(form.password.data)
+            db_sess.add(user)
+            db_sess.commit()
+            return redirect('/login')
+    return render_template('register.html', form=form)
 
 
 @app.route('/addjob', methods=['GET', 'POST'])
@@ -82,6 +135,11 @@ def addjob():
         return redirect("/")
     return render_template('job.html', form=form)
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 if __name__ == '__main__':
     app.run(port=8080, host='127.0.0.1')
