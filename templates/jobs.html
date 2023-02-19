@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Список профессий</h2>
+    {% for item in profs %}
+        <li>{{item}}</li>
+    {% endfor %}
+{% endblock %}

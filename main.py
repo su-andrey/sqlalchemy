@@ -1,13 +1,14 @@
 from flask import Flask
 from flask import redirect, render_template
 from flask_login import LoginManager
-from flask_login import login_user
+from flask_login import login_user, login_required
 from flask_wtf import FlaskForm
 from wtforms import EmailField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
 
 from data import db_session
 from data.users import User
+from data.jobs import Jobs
 
 db_session.global_init("db/blogs.db")
 app = Flask(__name__)
@@ -46,8 +47,12 @@ def login():
 
 
 @app.route('/')
+@login_required
 def main():
-    return render_template('base.html')
+    db_sess = db_session.create_session()
+    profs = [job for job in db_sess.query(Jobs)]
+    return render_template('jobs.html', profs=profs)
+
 
 
 if __name__ == '__main__':
