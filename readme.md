@@ -3,4 +3,5 @@
 /login - вход
 /register - регистрация
 /addjob - добавление работы
+/editjob - изменение работы
 test@mail.ru/test - готовый юзер для тестов

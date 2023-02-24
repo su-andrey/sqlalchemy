@@ -1,11 +1,13 @@
+import flask_login
 from flask import Flask, request
 from flask import redirect, render_template
 from flask_login import LoginManager
 from flask_login import login_user, login_required, logout_user
 from flask_wtf import FlaskForm
+from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import EmailField, PasswordField, BooleanField, SubmitField, StringField
 from wtforms.validators import DataRequired
-from werkzeug.security import generate_password_hash, check_password_hash
+
 from data import db_session
 from data.jobs import Jobs
 from data.users import User
@@ -60,9 +62,6 @@ def main():
     db_sess = db_session.create_session()
     profs = [job for job in db_sess.query(Jobs)]
     return render_template('jobs.html', profs=profs)
-
-def hi():
-    return redirect('/authorize')
 
 
 class Authorize(FlaskForm):
@@ -135,11 +134,33 @@ def addjob():
         return redirect("/")
     return render_template('job.html', form=form)
 
+
+@app.route('/editjob', methods=['GET', 'POST'])
+def editjob():
+    form = AddForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(Jobs).filter(Jobs.job == form.job.data):
+            if flask_login.current_user.id == '1' or form.team_leader.data == str(flask_login.current_user.id):
+                tex = db_sess.query(Jobs).filter(Jobs.job == form.job.data)
+                tex[0].team_leader = form.team_leader.data
+                tex[0].job = form.job.data
+                tex[0].work_size = form.work_size.data
+                tex[0].end_date = form.end_date.data
+                tex[0].start_date = form.start_date.data
+                tex[0].is_finished = form.is_finished.data
+                tex[0].collaborations = form.collaborations.data
+                db_sess.commit()
+        return redirect("/")
+    return render_template('job.html', form=form)
+
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect("/")
+
 
 if __name__ == '__main__':
     app.run(port=8080, host='127.0.0.1')
