@@ -155,6 +155,26 @@ def editjob():
     return render_template('job.html', form=form)
 
 
+class DeleteJob(FlaskForm):
+    name = StringField('Введите название работы для удаления', validators=[DataRequired()])
+    delete = SubmitField('Удалить')
+
+
+@app.route('/deletejob', methods=['GET', 'POST'])
+@login_required
+def delete_job():
+    form = DeleteJob()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if flask_login.current_user.id == '1' or db_sess.query(Jobs).filter(Jobs.job == form.name.data)[
+            0].team_leader == flask_login.current_user.id:
+            i = db_sess.query(Jobs).filter(Jobs.job == form.name.data).one()
+            db_sess.delete(i)
+            db_sess.commit()
+        return redirect("/")
+    return render_template('deletejob.html', form=form)
+
+
 @app.route('/logout')
 @login_required
 def logout():
