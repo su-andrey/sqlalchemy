@@ -1,10 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
+
     <h2>Список профессий</h2>
-    <ol class="rounded">
         {% if current_user.is_authenticated%}
     {% for item in profs %}
-        <li><a>{{item}}</a></li>
+        <table class="zebra">
+              <tr class="round-top">
+    <th>Название</th>
+    <th>Содатель</th>
+    <th>Длительность</th>
+    <th>Дата начала</th>
+    <th>Дата конца</th>
+    <th>Список участников</th><th>Окончена?</th>
+  </tr>
+
+            <tr>
+    <td class="round-bottom">{{item.job}}</td>
+    <td>{{item.team_leader}}</td><td>{{item.work_size}}</td><td>{{item.start_date}}</td><td>{{item.end_date}}</td><td>{{item.collaborators}}</td>
+                <td>{{item.is_finished}}</td>
+  </tr>
+        </table>
         {%if current_user.id == item.team_leader or current_user.id == 1 %}
             <div>
         <a href="/editjob/{{item.job}}" class="btn btn-warning">
@@ -16,6 +31,5 @@
     </div>
         {% endif %}
     {% endfor %}
-    </ol>
 {% endif %}
 {% endblock %}
