@@ -5,7 +5,7 @@ from flask_login import LoginManager
 from flask_login import login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms import EmailField, PasswordField, BooleanField, SubmitField, StringField
+from wtforms import EmailField, PasswordField, BooleanField, SubmitField, StringField, DateField
 from wtforms.validators import DataRequired
 
 from data import db_session
@@ -37,8 +37,8 @@ class AddForm(FlaskForm):
     job = StringField('Название работы', validators=[DataRequired()])
     team_leader = StringField('Id лидера', validators=[DataRequired()])
     work_size = StringField('Размер работы в часах', validators=[DataRequired()])
-    start_date = StringField('Время начала', validators=[DataRequired()])
-    end_date = StringField('Время окончания', validators=[DataRequired()])
+    start_date = DateField('Дата начала', validators=[DataRequired()])
+    end_date = DateField('Дата окончания', validators=[DataRequired()])
     collaborations = StringField('Список работников через запятую', validators=[DataRequired()])
     is_finished = BooleanField('Работа окончена')
     submit = SubmitField('Готово')
@@ -117,6 +117,7 @@ def register():
 
 
 @app.route('/addjob', methods=['GET', 'POST'])
+@login_required
 def addjob():
     form = AddForm()
     if form.validate_on_submit():
