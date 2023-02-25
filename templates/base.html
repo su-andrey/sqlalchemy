@@ -12,7 +12,9 @@
     <body>
     <div align="center"> <a href="/register">    Регистрация    </a>
         <a href="/login"> Войти </a></div>
-    <div align="right"><a href="/logout">{{ current_user.name }} {{ current_user.surname }}</a>
+    <div align="right"><a href="/addjob" class="btn btn-warning">
+            Добавить работу
+        </a><a href="/logout">{{ current_user.name }} {{ current_user.surname }}</a>
 
     </div>
     <div class="text-bg-secondary p-3">
