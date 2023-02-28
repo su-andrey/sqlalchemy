@@ -1,5 +1,7 @@
 import flask_login
+import flask
 from flask import Flask, request
+from flask import make_response
 from flask import redirect, render_template
 from flask_login import LoginManager
 from flask_login import login_user, login_required, logout_user
@@ -8,6 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import EmailField, PasswordField, BooleanField, SubmitField, StringField, DateField
 from wtforms.validators import DataRequired
 
+import news_api
 from data import db_session
 from data.jobs import Jobs
 from data.users import User
@@ -18,12 +21,20 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/blogs.db")
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+db_session.global_init("db/blogs.db")
+app.register_blueprint(news_api.blueprint)
+app.run()
 
 
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(flask.jsonify({'error': 'Not found'}), 404)
 
 
 class LoginForm(FlaskForm):

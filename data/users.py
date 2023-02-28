@@ -1,10 +1,11 @@
 import datetime
 import sqlalchemy
 import flask_login
+from sqlalchemy_serializer import SerializerMixin
 from .db_session import SqlAlchemyBase
 
 
-class User(SqlAlchemyBase, flask_login.UserMixin):
+class User(SqlAlchemyBase, flask_login.UserMixin, SerializerMixin):
     __tablename__ = 'users'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
