@@ -14,9 +14,9 @@ class Jobs(SqlAlchemyBase, SerializerMixin):
     job = sqlalchemy.Column(sqlalchemy.String)
     work_size = sqlalchemy.Column(sqlalchemy.Integer)
     collaborators = sqlalchemy.Column(sqlalchemy.String)
-    start_date = sqlalchemy.Column(sqlalchemy.DateTime,
+    start_date = sqlalchemy.Column(sqlalchemy.DATE,
                                      default=datetime.datetime.now())
-    end_date = sqlalchemy.Column(sqlalchemy.DateTime,
+    end_date = sqlalchemy.Column(sqlalchemy.DATE,
                                      default=datetime.datetime.now())
     is_finished = sqlalchemy.Column(sqlalchemy.Boolean)
 

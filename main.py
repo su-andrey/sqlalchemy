@@ -9,7 +9,6 @@ from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import EmailField, PasswordField, BooleanField, SubmitField, StringField, DateField
 from wtforms.validators import DataRequired
-from test import test
 import news_api
 from data import db_session
 from data.jobs import Jobs
@@ -21,9 +20,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/blogs.db")
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-db_session.global_init("db/blogs.db")
-app.register_blueprint(news_api.blueprint)
-app.run()
+#app.register_blueprint(news_api.blueprint)
 
 
 @login_manager.user_loader
@@ -130,19 +127,22 @@ def register():
 @login_required
 def addjob():
     form = AddForm()
-    if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        job = Jobs()
-        job.job = form.job.data
-        job.team_leader = form.team_leader.data
-        job.work_size = form.work_size.data
-        job.start_date = form.start_date.data
-        job.end_date = form.end_date.data
-        job.collaborators = form.collaborations.data
-        job.is_finished = form.is_finished.data
-        db_sess.add(job)
-        db_sess.commit()
-        return redirect("/")
+    try:
+        if form.validate_on_submit():
+            db_sess = db_session.create_session()
+            job = Jobs()
+            job.job = form.job.data
+            job.team_leader = int(form.team_leader.data)
+            job.work_size = int(form.work_size.data)
+            job.start_date = form.start_date.data
+            job.end_date = form.end_date.data
+            job.collaborators = form.collaborations.data
+            job.is_finished = form.is_finished.data
+            db_sess.add(job)
+            db_sess.commit()
+            return redirect("/")
+    except:
+        return redirect('/addjob')
     return render_template('job.html', form=form)
 
 
