@@ -68,7 +68,6 @@ def login():
 
 
 @app.route('/')
-@login_required
 def main():
     db_sess = db_session.create_session()
     profs = [job for job in db_sess.query(Jobs)]
@@ -147,22 +146,22 @@ def addjob():
     return render_template('job.html', form=form)
 
 
-@app.route('/editjob', methods=['GET', 'POST'])
-def editjob():
+@app.route('/editjob/<jobname>', methods=['GET', 'POST'])
+@login_required
+def editjob(jobname):
     form = AddForm()
+    form.job.data = jobname
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        if db_sess.query(Jobs).filter(Jobs.job == form.job.data):
-            if flask_login.current_user.id == '1' or form.team_leader.data == str(flask_login.current_user.id):
-                tex = db_sess.query(Jobs).filter(Jobs.job == form.job.data)
-                tex[0].team_leader = form.team_leader.data
-                tex[0].job = form.job.data
-                tex[0].work_size = form.work_size.data
-                tex[0].end_date = form.end_date.data
-                tex[0].start_date = form.start_date.data
-                tex[0].is_finished = form.is_finished.data
-                tex[0].collaborations = form.collaborations.data
-                db_sess.commit()
+        tex = db_sess.query(Jobs).filter(Jobs.job == jobname)
+        tex[0].team_leader = form.team_leader.data
+        tex[0].job = form.job.data
+        tex[0].work_size = form.work_size.data
+        tex[0].end_date = form.end_date.data
+        tex[0].start_date = form.start_date.data
+        tex[0].is_finished = form.is_finished.data
+        tex[0].collaborations = form.collaborations.data
+        db_sess.commit()
         return redirect("/")
     return render_template('job.html', form=form)
 
@@ -172,19 +171,14 @@ class DeleteJob(FlaskForm):
     delete = SubmitField('Удалить')
 
 
-@app.route('/deletejob', methods=['GET', 'POST'])
+@app.route('/deletejob/<jobname>', methods=['GET', 'POST'])
 @login_required
-def delete_job():
-    form = DeleteJob()
-    if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        if flask_login.current_user.id == '1' or db_sess.query(Jobs).filter(Jobs.job == form.name.data)[
-            0].team_leader == flask_login.current_user.id:
-            i = db_sess.query(Jobs).filter(Jobs.job == form.name.data).one()
-            db_sess.delete(i)
-            db_sess.commit()
-        return redirect("/")
-    return render_template('deletejob.html', form=form)
+def delete_job(jobname):
+    db_sess = db_session.create_session()
+    i = db_sess.query(Jobs).filter(Jobs.job == jobname).one()
+    db_sess.delete(i)
+    db_sess.commit()
+    return redirect("/")
 
 
 @app.route('/logout')
