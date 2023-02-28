@@ -9,7 +9,7 @@ from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import EmailField, PasswordField, BooleanField, SubmitField, StringField, DateField
 from wtforms.validators import DataRequired
-
+from test import test
 import news_api
 from data import db_session
 from data.jobs import Jobs
