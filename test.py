@@ -1,16 +1,19 @@
 from requests import get
+import requests
 
 def test():
+    s = requests.session()
+    s.keep_alive = False  # disable keep alive
     print('НИЖЕ ДОЛЖЕН ВЫВЕСТИ СПИСОК ВСЕХ РАБОТ')
-    print(get('http://localhost:5000/api/jobs').json())
+    print(s.get('http://localhost:5000/api/jobs', timeout=12).json())
     print()
     print('НИЖЕ ДОЛЖНА ПОЯВИТСЯ РАБОТА С ИД 0')
-    print(get('http://localhost:5000/api/jobs/1').json())
+    print(s.get('http://localhost:5000/api/jobs/1').json())
     print()
     print('НИЖЕ НЕ ДОЛЖНА ПОЯВИТСЯ РАБОТА С ИД 999')
-    print(get('http://localhost:5000/api/jobs/999').json())
+    print(s.get('http://localhost:5000/api/jobs/999').json())
     print()
     print('НИЖЕ НЕ ДОЛЖНА ПОЯВИТСЯ РАБОТА С ИД asd')
-    print(get('http://localhost:5000/api/jobs/asd').json())
+    print(s.get('http://localhost:5000/api/jobs/asd').json())
     print()
 

@@ -1,4 +1,5 @@
 import flask
+import datetime
 from data import db_session
 from data.jobs import Jobs
 from flask import request
@@ -14,23 +15,24 @@ def create_job():
     if not request.json:
         return flask.jsonify({'error': 'Empty request'})
     elif not all(key in request.json for key in
-                 ['job', 'team_leader', 'work_size', 'is_finished', 'collaborators', 'start_date', 'end_date', 'id']):
+                 ['job', 'team_leader', 'work_size', 'is_finished', 'collaborators', 'start_date', 'end_date']):
         return flask.jsonify({'error': 'Bad request'})
     db_sess = db_session.create_session()
-    if not db_sess.query(Jobs).filter(Jobs.id == request.json['id']):
-        job = Jobs(
-            id=request.json['id'],
-            job=request.json['job'],
-            team_leader=request.json['team_leader'],
-            start_date=request.json['start_date'],
-            end_date=request.json['end_date'],
-            collaborators=request.json['collaborators'],
-            is_finished=request.json['is_finished'],
-            work_size=request.json['work_size']
-        )
-        db_sess.add(job)
-        db_sess.commit()
-        return flask.jsonify({'success': 'OK'})
+    try:
+        if not db_sess.query(Jobs).filter(Jobs.id == request.json['id']).all():
+            job = Jobs()
+            job.job = request.json['job']
+            job.team_leader = request.json['team_leader']
+            job.work_size = request.json['work_size']
+            job.start_date = datetime.datetime.now()
+            job.end_date = datetime.datetime.now()
+            job.collaborators = request.json['collaborators']
+            job.is_finished = request.json['is_finished']
+            db_sess.add(job)
+            db_sess.commit()
+            return flask.jsonify({'success': 'OK'})
+    except Exception:
+        return Exception
     return flask.jsonify({'error': 'bad data', 'id': 'already exists'})
 
 @blueprint.route('/api/jobs')
