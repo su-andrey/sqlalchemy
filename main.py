@@ -20,7 +20,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/blogs.db")
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-#app.register_blueprint(news_api.blueprint)
+db_session.global_init("db/blogs.db")
+app.register_blueprint(news_api.blueprint)
+app.run()
 
 
 @login_manager.user_loader

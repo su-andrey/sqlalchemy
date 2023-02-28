@@ -61,3 +61,13 @@ def get_one_news(news_id):
     )
 
 
+@blueprint.route('/api/deletework/<int:work_id>', methods=['DELETE'])
+def delete_news(work_id):
+    db_sess = db_session.create_session()
+    work = db_sess.query(Jobs).get(work_id)
+    if not work:
+        return flask.jsonify({'error': 'Not found'})
+    db_sess.delete(work)
+    db_sess.commit()
+    return flask.jsonify({'success': 'OK'})
+
