@@ -116,3 +116,13 @@ def edit_work(user_id):
         return flask.jsonify({'Error': 'KeyError'})
     except ValueError:
         return flask.jsonify({'Error': 'ValueError'})
+
+
+@blueprint.route('/api/usertown/<int:user_id>', methods=['POST', 'GET'])
+def usertown(user_id):
+    db_sess = db_session.create_session()
+    try:
+        user = db_sess.query(User).filter(User.id == user_id).one()
+    except sqlalchemy.exc.NoResultFound:
+        return flask.jsonify({'error': 'bad id or something else'})
+    return user.city_from

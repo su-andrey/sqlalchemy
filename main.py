@@ -1,5 +1,6 @@
 import flask_login
 import flask
+from requests import get
 from flask import Flask, request
 from flask import make_response
 from flask import redirect, render_template
@@ -24,7 +25,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 db_session.global_init("db/blogs.db")
 app.register_blueprint(news_api.blueprint)
 app.register_blueprint(user_api.blueprint)
-app.run()
+
 
 
 @login_manager.user_loader
@@ -191,6 +192,10 @@ def logout():
     logout_user()
     return redirect("/")
 
+@app.route('/user_show/<id>', methods=['GET', 'POST'])
+def user_show(id):
+    return get(f'http://localhost:5000/api/usertown/{id}')
 
-if __name__ == '__main__':
-    app.run(port=8080, host='127.0.0.1')
+
+
+app.run()

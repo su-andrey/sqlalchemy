@@ -20,3 +20,4 @@ class User(SqlAlchemyBase, flask_login.UserMixin, SerializerMixin):
     check_password = sqlalchemy.Column(sqlalchemy.String)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                       default=datetime.datetime.now)
+    city_from = sqlalchemy.Column(sqlalchemy.String)
