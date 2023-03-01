@@ -75,7 +75,7 @@ def delete_news(work_id):
 @blueprint.route('/api/editwork/<int:work_id>', methods=['POST'])
 def edit_work(work_id):
     db_sess = db_session.create_session()
-    job = db_sess.query(Jobs).filter(Jobs.id == request.json['id']).one()
+    job = db_sess.query(Jobs).filter(Jobs.id == work_id).one()
     if not job:
         return flask.jsonify({'error': 'Not found'})
     job.job = request.json['job']
