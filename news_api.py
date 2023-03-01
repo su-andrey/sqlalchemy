@@ -1,5 +1,8 @@
 import flask
 import datetime
+
+import sqlalchemy.exc
+
 from data import db_session
 from data.jobs import Jobs
 from flask import request
@@ -75,19 +78,28 @@ def delete_news(work_id):
 @blueprint.route('/api/editwork/<int:work_id>', methods=['POST'])
 def edit_work(work_id):
     db_sess = db_session.create_session()
-    job = db_sess.query(Jobs).filter(Jobs.id == work_id).one()
+    try:
+        job = db_sess.query(Jobs).filter(Jobs.id == work_id).one()
+    except sqlalchemy.exc.NoResultFound:
+        return flask.jsonify({'error': 'bad id or something else'})
     if not job:
         return flask.jsonify({'error': 'Not found'})
-    job.job = request.json['job']
-    job.team_leader = request.json['team_leader']
-    job.work_size = request.json['work_size']
-    job.start_date = datetime.datetime.now()
-    job.end_date = datetime.datetime.now()
-    job.collaborators = request.json['collaborators']
-    job.is_finished = request.json['is_finished']
-    db_sess.add(job)
-    db_sess.commit()
-    return flask.jsonify({'success': 'OK'})
+    try:
+        job.job = request.json['job']
+        job.team_leader = int(request.json['team_leader'])
+        job.work_size = int(request.json['work_size'])
+        job.start_date = datetime.datetime.now()
+        job.end_date = datetime.datetime.now()
+        job.collaborators = request.json['collaborators']
+        job.is_finished = request.json['is_finished']
+        db_sess.add(job)
+        db_sess.commit()
+        return flask.jsonify({'success': 'OK'})
+    except KeyError:
+        return flask.jsonify({'Error': 'KeyError'})
+    except ValueError:
+        return flask.jsonify({'Error': 'ValueError'})
+
 
 
 
