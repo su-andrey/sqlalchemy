@@ -1,4 +1,4 @@
-import flask_login
+import requests
 import flask
 from requests import get
 from flask import Flask, request
@@ -192,9 +192,30 @@ def logout():
     logout_user()
     return redirect("/")
 
-@app.route('/user_show/<id>', methods=['GET', 'POST'])
+@app.route('/user_show/<id>', methods=['GET'])
 def user_show(id):
-    return get(f'http://localhost:5000/api/usertown/{id}')
+    info = get(f'http://localhost:5000/api/user/{id}').json()["users"][0]
+    city, name = info['city_from'], f'{info["name"]} {info["surname"]}'
+    myau = 'https://geocode-maps.yandex.ru/1.x'
+    mur = requests.get(myau, params={'apikey': '40d1649f-0493-4b70-98ba-98533de7710b',
+                                     'geocode': city, 'format': 'json'})
+
+    # Преобразуем ответ в json-объект
+    json_response = mur.json()
+    # Получаем первый топоним из ответа геокодера.
+    # Согласно описанию ответа, он находится по следующему пути:
+    toponym = json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
+    toponym = toponym.replace(' ', ',')
+    map_request = "https://static-maps.yandex.ru/1.x"
+    response = requests.get(map_request, params={'ll': toponym, 'z': 11, 'l': 'sat'})
+    # Запишем полученное изображение в файл.
+    map_file = "map.png"
+    with open(map_file, "wb") as file:
+        file.write(response.content)
+    param = {}
+    param['place'], param['name'], param['src'] = city, name, 'map.png'
+    print('Success')
+    return render_template('nostalgy.html', **param)
 
 
 

@@ -34,7 +34,7 @@ def get_one_user(user_id):
     return flask.jsonify(
         {
             'users':
-                [user.to_dict(only=('id', 'surname', 'name', 'age', 'position', 'speciality', 'address', 'email'))]
+                [user.to_dict(only=('id', 'surname', 'name', 'age', 'position', 'speciality', 'address', 'email', 'city_from'))]
         }
     )
 
@@ -117,12 +117,8 @@ def edit_work(user_id):
     except ValueError:
         return flask.jsonify({'Error': 'ValueError'})
 
-
-@blueprint.route('/api/usertown/<int:user_id>', methods=['POST', 'GET'])
-def usertown(user_id):
-    db_sess = db_session.create_session()
-    try:
-        user = db_sess.query(User).filter(User.id == user_id).one()
-    except sqlalchemy.exc.NoResultFound:
-        return flask.jsonify({'error': 'bad id or something else'})
-    return user.city_from
+@blueprint.route('/user_show/data/map.png', methods=['GET','POST'])
+def data():
+    with open('map.png', "rb") as file:
+        tex = file.read()
+    return tex
