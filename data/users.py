@@ -16,7 +16,7 @@ class User(SqlAlchemyBase, flask_login.UserMixin, SerializerMixin):
     position = sqlalchemy.Column(sqlalchemy.String)
     speciality = sqlalchemy.Column(sqlalchemy.String)
     address = sqlalchemy.Column(sqlalchemy.String)
-    email = sqlalchemy.Column(sqlalchemy.String, unique=True)
+    email = sqlalchemy.Column(sqlalchemy.String)
     check_password = sqlalchemy.Column(sqlalchemy.String)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                       default=datetime.datetime.now)
