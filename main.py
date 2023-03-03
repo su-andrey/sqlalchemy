@@ -1,23 +1,25 @@
 import requests
-import flask
-from requests import get
 from flask import Flask, request
-from flask import make_response
 from flask import redirect, render_template
 from flask_login import LoginManager
 from flask_login import login_user, login_required, logout_user
+from flask_restful import Api
 from flask_wtf import FlaskForm
+from requests import get
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import EmailField, PasswordField, BooleanField, SubmitField, StringField, DateField
 from wtforms.validators import DataRequired
+
 import news_api
 import user_api
+import users_resource
 from data import db_session
 from data.jobs import Jobs
 from data.users import User
 
 db_session.global_init("db/blogs.db")
 app = Flask(__name__)
+api = Api(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/blogs.db")
@@ -25,18 +27,13 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 db_session.global_init("db/blogs.db")
 app.register_blueprint(news_api.blueprint)
 app.register_blueprint(user_api.blueprint)
-
+api.add_resource(users_resource.UsersListResource, '/api/v2/users')
+api.add_resource(users_resource.UsersResource, '/api/v2/users/<int:user_id>')
 
 
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
-    return db_sess.query(User).get(user_id)
-
-
-@app.errorhandler(404)
-def not_found(error):
-    return make_response(flask.jsonify({'error': 'Not found'}), 404)
 
 
 class LoginForm(FlaskForm):
@@ -192,6 +189,7 @@ def logout():
     logout_user()
     return redirect("/")
 
+
 @app.route('/user_show/<id>', methods=['GET'])
 def user_show(id):
     info = get(f'http://localhost:5000/api/user/{id}').json()["users"][0]
@@ -216,7 +214,6 @@ def user_show(id):
     param['place'], param['name'], param['src'] = city, name, 'map.png'
     print('Success')
     return render_template('nostalgy.html', **param)
-
 
 
 app.run()
