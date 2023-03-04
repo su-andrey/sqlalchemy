@@ -15,14 +15,6 @@ class JobResource(Resource):
             only=('id', 'team_leader', 'work_size', 'collaborators', 'start_date', 'end_date',
                   'is_finished'))})
 
-    def delete(self, job_id):
-        user_not_found(job_id)
-        session = db_session.create_session()
-        job = session.query(Jobs).get(job_id)
-        session.delete(job)
-        session.commit()
-        return jsonify({'success': 'OK'})
-
 
     def post(self, job_id=None):
         args = parser.parse_args()
@@ -30,7 +22,7 @@ class JobResource(Resource):
         if not job_id:
             job = Jobs()
             job.job = args['job']
-            job.team_leader = int(args['team_leader'])
+            job.team_leader = args['team_leader']
             job.work_size = args['work_size']
             job.collaborators = args['collaborators']
             job.start_date = args['start_date']
@@ -63,10 +55,7 @@ class JobsListResource(Resource):
         if not job_id:
             job = Jobs()
             job.job = args['job']
-            try:
-                job.team_leader = int(args['team_leader'])
-            except ValueError:
-                return 'Teamleader field must be an integer'
+            job.team_leader = args['team_leader']
             job.work_size = args['work_size']
             job.collaborators = args['collaborators']
             job.start_date = args['start_date']
