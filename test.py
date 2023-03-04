@@ -9,7 +9,7 @@ print(get("http://127.0.0.1:5000/api/v2/users/3").json())
 print('Теперь добавляес пользователя с ид 3')
 print(post('http://127.0.0.1:5000/api/v2/users/3', json={
     "surname": "tester", "name": "test", "age": 18, "position": "test", "speciality": "test", "address": "module_11",
-    "city_from": 'Москва', "email": "test1111@yandex.ru"
+    "city_from": 'Москва', "email": "test1112@yandex.ru"
 }).json())
 print('Отправим неправильный запрос')
 print(put('http://127.0.0.1:5000/api/v2/users/12', json={

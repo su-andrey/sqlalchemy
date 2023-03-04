@@ -23,24 +23,14 @@ class JobResource(Resource):
         session.commit()
         return jsonify({'success': 'OK'})
 
-    def put(self, job_id):
-        args = parser.parse_args()
-        user_not_found(job_id)
-        session = db_session.create_session()
-        job = {'team_leader': args['team_leader'], 'job': args['job'], 'work_size': args['work_size'],
-               'collaborators': args['collaborators'],
-               'start_date': args['start_date'], 'end_date': args['end_date'], 'is_finished': args['is_finished']}
-        session.query(Jobs).filter(Jobs.id == job_id).update(job)
-        session.commit()
-        return jsonify({'success': 'OK'})
 
-    def post(self, job_id):
+    def post(self, job_id=None):
         args = parser.parse_args()
         session = db_session.create_session()
-        if not session.query(Jobs).filter(Jobs.id == job_id).all():
+        if not job_id:
             job = Jobs()
             job.job = args['job']
-            job.team_leader = args['team_leader']
+            job.team_leader = int(args['team_leader'])
             job.work_size = args['work_size']
             job.collaborators = args['collaborators']
             job.start_date = args['start_date']
@@ -49,7 +39,15 @@ class JobResource(Resource):
             session.add(job)
             session.commit()
             return jsonify({'success': 'OK'})
-        return jsonify({'error': 'this job is already exists'})
+        else:
+            user_not_found(job_id)
+            session = db_session.create_session()
+            job = {'team_leader': args['team_leader'], 'job': args['job'], 'work_size': args['work_size'],
+                   'collaborators': args['collaborators'],
+                   'start_date': args['start_date'], 'end_date': args['end_date'], 'is_finished': args['is_finished']}
+            session.query(Jobs).filter(Jobs.id == job_id).update(job)
+            session.commit()
+            return jsonify({'success': 'OK'})
 
 
 class JobsListResource(Resource):
@@ -59,13 +57,16 @@ class JobsListResource(Resource):
         return jsonify({'users': [item.to_dict(
             only=('job', 'team_leader', 'collaborators', 'start_date', 'end_date', 'is_finished')) for item in jobs]})
 
-    def post(self, job_id):
+    def post(self, job_id=None):
         args = parser.parse_args()
         session = db_session.create_session()
-        if not session.query(Jobs).filter(Jobs.id == job_id).all():
+        if not job_id:
             job = Jobs()
             job.job = args['job']
-            job.team_leader = args['team_leader']
+            try:
+                job.team_leader = int(args['team_leader'])
+            except ValueError:
+                return 'Teamleader field must be an integer'
             job.work_size = args['work_size']
             job.collaborators = args['collaborators']
             job.start_date = args['start_date']
@@ -74,7 +75,15 @@ class JobsListResource(Resource):
             session.add(job)
             session.commit()
             return jsonify({'success': 'OK'})
-        return jsonify({'error': 'this job is already exists'})
+        else:
+            user_not_found(job_id)
+            session = db_session.create_session()
+            job = {'team_leader': args['team_leader'], 'job': args['job'], 'work_size': args['work_size'],
+                   'collaborators': args['collaborators'],
+                   'start_date': args['start_date'], 'end_date': args['end_date'], 'is_finished': args['is_finished']}
+            session.query(Jobs).filter(Jobs.id == job_id).update(job)
+            session.commit()
+            return jsonify({'success': 'OK'})
 
     def delete(self, job_id):
         user_not_found(job_id)

@@ -2,7 +2,6 @@ from flask import jsonify
 from flask_restful import abort, Resource
 
 from data import db_session
-from data.db_session import create_session
 from data.users import User
 from parser_ import parser
 
@@ -24,21 +23,11 @@ class UsersResource(Resource):
         session.commit()
         return jsonify({'success': 'OK'})
 
-    def put(self, user_id):
-        args = parser.parse_args()
-        user_not_found(user_id)
-        session = db_session.create_session()
-        user = {'surname': args['surname'], 'name': args['name'], 'age': args['age'], 'position': args['position'],
-                'speciality': args['speciality'], 'address': args['address'], 'email': args['email'],
-                'city_from': args['city_from']}
-        session.query(User).filter(User.id == user_id).update(user)
-        session.commit()
-        return jsonify({'success': 'OK'})
 
-    def post(self, user_id):
+    def post(self, user_id=None):
         args = parser.parse_args()
         session = db_session.create_session()
-        if not session.query(User).filter(User.id == user_id).all():
+        if not user_id:
             user = User()
             user.surname = args['surname']
             user.name = args['name']
@@ -51,8 +40,15 @@ class UsersResource(Resource):
             session.add(user)
             session.commit()
             return jsonify({'success': 'OK'})
-        return jsonify({'error': 'this user is already exists'})
-
+        else:
+            user_not_found(user_id)
+            session = db_session.create_session()
+            user = {'surname': args['surname'], 'name': args['name'], 'age': args['age'], 'position': args['position'],
+                    'speciality': args['speciality'], 'address': args['address'], 'email': args['email'],
+                    'city_from': args['city_from']}
+            session.query(User).filter(User.id == user_id).update(user)
+            session.commit()
+            return jsonify({'success': 'OK'})
 
 class UsersListResource(Resource):
     def get(self):
