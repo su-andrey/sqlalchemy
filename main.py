@@ -20,7 +20,7 @@ from data.users import User
 
 db_session.global_init("db/blogs.db")
 app = Flask(__name__)
-api = Api(app)
+#api = Api(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/blogs.db")
@@ -28,10 +28,10 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 db_session.global_init("db/blogs.db")
 app.register_blueprint(news_api.blueprint)
 app.register_blueprint(user_api.blueprint)
-api.add_resource(users_resource.UsersListResource, '/api/v2/users')
-api.add_resource(users_resource.UsersResource, '/api/v2/users/<int:user_id>')
-api.add_resource(jobs_resource.JobsListResource, '/api/v2/jobs')
-api.add_resource(jobs_resource.JobResource, '/api/v2/jobs/<int:job_id>')
+#api.add_resource(users_resource.UsersListResource, '/api/v2/users')
+#api.add_resource(users_resource.UsersResource, '/api/v2/users/<int:user_id>')
+#api.add_resource(jobs_resource.JobsListResource, '/api/v2/jobs')
+#api.add_resource(jobs_resource.JobResource, '/api/v2/jobs/<int:job_id>')
 
 
 @login_manager.user_loader

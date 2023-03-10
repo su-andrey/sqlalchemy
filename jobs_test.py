@@ -1,24 +1,10 @@
-from requests import get, put, delete, post
+from requests import post, get, put
 
-print('Работа ниже не должнай найтись, тк нет ее ид')
-print(get("http://127.0.0.1:5000/api/v2/jobs/34534634534").json())
-print('теперь удаляем работу с ид 3(если она есть)')
-print(delete("http://127.0.0.1:5000/api/v2/jobs/5").json())
-print('Теперь добавляем работу')
-print(post('http://127.0.0.1:5000/api/v2/jobs', json={
-    "job": "test", "team_leader": 'asd', "is_finished": 0,
-    "collaborators": '1, 2, 3', "work_size": 4}).json())
-print('Смотри какую-то работу')
-print(get("http://127.0.0.1:5000/api/v2/jobs/6").json())
-print('После редактируем ее')
-print(post('http://127.0.0.1:5000/api/v2/jobs/6', json={
-    "job": "test", "team_leader": 1, "is_finished": 0,
-    "collaborators": '4, 1, 2', "work_size": 4}).json())
-print('Снова смотрим')
-print(get("http://127.0.0.1:5000/api/v2/jobs/6").json())
-print('Отправим некорректный запрос')
-print(post('http://127.0.0.1:5000/api/v2/jobs/4', json={
-    "job": "test", "team_leader": 2, "is_finished": 0,
-    "collaborators": '4, 1, 2', "work_size": 4}).json())
-print('Отправим корректный запрос')
+print(post('http://localhost:5000/api/jobs/12',
+           json={
+               'team_leader': 11,
+               'job': 'не работа',
+               'start_date': '2005-04-01', 'end_date': '2007-04-01',
+               'collaborators': '0', 'work_size': 222,
+               'is_finished': 1}).json())  # проверяем с помощью адекватного запроса
 
