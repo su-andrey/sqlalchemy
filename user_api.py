@@ -1,9 +1,11 @@
-import flask
+import datetime
 
+import flask
 import sqlalchemy.exc
+from flask import request
+
 from data import db_session
 from data.users import User
-from flask import request
 
 blueprint = flask.Blueprint(
     'user_api',
@@ -13,90 +15,59 @@ blueprint = flask.Blueprint(
 
 
 @blueprint.route('/api/users', methods=['GET'])
-def get_users():
+def get_user():
     db_sess = db_session.create_session()
-    users = db_sess.query(User).all()
+    news = db_sess.query(User).all()
     return flask.jsonify(
         {
             'users':
-                [item.to_dict(only=('id', 'surname', 'name', 'age', 'position', 'speciality', 'address', 'email'))
-                 for item in users]
+                [item.to_dict(only=('surname', 'name', 'age', 'position', 'speciality', 'address', 'email', 'city_from')
+                              ) for item in news]
         }
     )
 
 
-@blueprint.route('/api/user/<int:user_id>', methods=['GET'])
-def get_one_user(user_id):
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == user_id).one()
-    if not user:
-        return flask.jsonify({'error': 'Not found'})
-    return flask.jsonify(
-        {
-            'users':
-                [user.to_dict(only=('id', 'surname', 'name', 'age', 'position', 'speciality', 'address', 'email', 'city_from'))]
-        }
-    )
-
-
-@blueprint.route('/api/user/<int:user_id>', methods=['GET'])
-def add_user(user_id):
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == user_id).one()
-    if not user:
-        return flask.jsonify({'error': 'Not found'})
-    return flask.jsonify(
-        {
-            'users':
-                [user.to_dict(only=('id', 'surname', 'name', 'age', 'position', 'speciality', 'address', 'email'))]
-        }
-    )
-
-
-@blueprint.route('/api/adduser', methods=['POST'])
-def create_user():
+@blueprint.route('/api/users', methods=['POST'])
+def add_user():
     if not request.json:
         return flask.jsonify({'error': 'Empty request'})
     elif not all(key in request.json for key in
-                 ['surname', 'name', 'age', 'position', 'speciality', 'email', 'id']):
+                 ['name', 'surname', 'age', 'position', 'speciality', 'address', 'email', 'city_from']):
         return flask.jsonify({'error': 'Bad request'})
     db_sess = db_session.create_session()
-    try:
-        if not db_sess.query(User).filter(User.id == request.json['id']).all():
-            user = User()
-            user.name = request.json['name']
-            user.surname = request.json['surname']
-            user.age = request.json['age']
-            user.position = request.json['position']
-            user.speciality = request.json['speciality']
-            user.email = request.json['email']
-            db_sess.add(user)
-            db_sess.commit()
-            return flask.jsonify({'success': 'OK'})
-    except sqlalchemy.exc.IntegrityError:
-        return flask.jsonify({'error': 'bad data', 'id': 'tis field was already used'})
-    except Exception:
-        return flask.jsonify({'error': 'bad data', 'id': 'already exists'})
-
-
-@blueprint.route('/api/deleteuser/<int:user_id>', methods=['DELETE'])
-def deleteuser(user_id):
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).get(user_id)
-    if not user:
-        return flask.jsonify({'error': 'Not found'})
-    db_sess.delete(user)
+    user = User()
+    user.name = request.json['name']
+    user.surname = request.json['surname']
+    user.age = request.json['age']
+    user.modified_date = datetime.datetime.now()
+    user.speciality = request.json['speciality']
+    user.address = request.json['address']
+    user.email = request.json['email']
+    user.city_from = request.json['city_from']
+    db_sess.add(user)
     db_sess.commit()
     return flask.jsonify({'success': 'OK'})
 
 
+@blueprint.route('/api/users/<int:user_id>', methods=['GET'])
+def get_one_user(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(user_id)
+    if not user:
+        return flask.jsonify({'error': 'Not found'})
+    return flask.jsonify(
+        {
+            'user': user.to_dict(
+                only=('surname', 'name', 'age', 'position', 'speciality', 'address', 'email', 'city_from'))
+        }
+    )
 
 
-@blueprint.route('/api/edituser/<int:user_id>', methods=['POST'])
-def edit_work(user_id):
+@blueprint.route('/api/users/<int:user_id>', methods=['POST'])
+def edituser(user_id):
     db_sess = db_session.create_session()
     try:
-        user = db_sess.query(User).filter(User.id == user_id).one()
+        user = db_sess.query(User).get(user_id)
     except sqlalchemy.exc.NoResultFound:
         return flask.jsonify({'error': 'bad id or something else'})
     if not user:
@@ -104,11 +75,12 @@ def edit_work(user_id):
     try:
         user.name = request.json['name']
         user.surname = request.json['surname']
-        user.age = int(request.json['age'])
+        user.age = request.json['age']
+        user.modified_date = datetime.datetime.now()
         user.speciality = request.json['speciality']
-        user.position = request.json['position']
-        user.email = request.json['email']
         user.address = request.json['address']
+        user.email = request.json['email']
+        user.city_from = request.json['city_from']
         db_sess.add(user)
         db_sess.commit()
         return flask.jsonify({'success': 'OK'})
@@ -117,8 +89,13 @@ def edit_work(user_id):
     except ValueError:
         return flask.jsonify({'Error': 'ValueError'})
 
-@blueprint.route('/user_show/data/map.png', methods=['GET','POST'])
-def data():
-    with open('map.png', "rb") as file:
-        tex = file.read()
-    return tex
+
+@blueprint.route('/api/users/<int:users_id>', methods=['DELETE'])
+def delete_user(users_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(users_id)
+    if not user:
+        return flask.jsonify({'error': 'Not found'})
+    db_sess.delete(user)
+    db_sess.commit()
+    return flask.jsonify({'success': 'OK'})
