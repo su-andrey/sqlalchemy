@@ -38,7 +38,7 @@ class JobResource(Resource):
                'start_date': args['start_date'], 'end_date': args['end_date'], 'is_finished': args['is_finished']}
         session.query(Jobs).filter(Jobs.id == job_id).update(job)
         session.commit()
-        return jsonify({'success': f'{job.id} field updated'})
+        return jsonify({'success': f'{job_id} field updated'})
 
 
 class JobsListResource(Resource):
