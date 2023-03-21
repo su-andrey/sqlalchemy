@@ -38,7 +38,7 @@ class JobResource(Resource):
                'start_date': args['start_date'], 'end_date': args['end_date'], 'is_finished': args['is_finished']}
         session.query(Jobs).filter(Jobs.id == job_id).update(job)
         session.commit()
-        return jsonify({'success': f'{job_id} field updated'})
+        return jsonify({'success': f'{job.id} field updated'})
 
 
 class JobsListResource(Resource):
@@ -46,7 +46,7 @@ class JobsListResource(Resource):
         session = db_session.create_session()
         jobs = session.query(Jobs).all()
         return jsonify({'jobs': [item.to_dict(
-            only=('job', 'team_leader', 'collaborators', 'start_date', 'end_date', 'is_finished')) for item in jobs]})
+            only=('id', 'job', 'team_leader', 'collaborators', 'start_date', 'end_date', 'is_finished')) for item in jobs]})
 
     def post(self):
         args = parser.parse_args()
@@ -62,4 +62,4 @@ class JobsListResource(Resource):
         session.add(job)
         session.commit()
         a = session.query(Jobs).order_by(Jobs.id.desc()).first().id
-        return jsonify({'success': f'{Jobs.id} added'})
+        return jsonify({'success': f'{job.id} added'})

@@ -63,5 +63,5 @@ class UsersListResource(Resource):
         session.add(user)
         session.commit()
         #a = session.query(User).order_by(User.id.desc()).first().id
-        return jsonify({'success': f'{User.id} added'})
+        return jsonify({'success': f'{user.id} added'})
 
