@@ -92,14 +92,14 @@ def authorize():
 
 class RegisterForm(FlaskForm):
     email = EmailField('Почта', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    password_repeat = PasswordField('Повторите пароль', validators=[DataRequired()])
     name = StringField('Имя', validators=[DataRequired()])
     surname = StringField('Фамилия', validators=[DataRequired()])
     age = StringField('Возраст', validators=[DataRequired()])
     position = StringField('Позиция', validators=[DataRequired()])
     speciality = StringField('Специальность', validators=[DataRequired()])
     address = StringField('Адресс', validators=[DataRequired()])
-    password = PasswordField('Пароль', validators=[DataRequired()])
-    remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Войти')
 
 
@@ -109,7 +109,7 @@ def register():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         adress = db_sess.query(User).filter(User.email == form.email.data).first()
-        if not adress:
+        if not adress and form.password.data == form.password_repeat.data:
             user = User()
             user.email = form.email.data
             user.age = form.age.data
@@ -117,6 +117,7 @@ def register():
             user.name = form.name.data
             user.speciality = form.speciality.data
             user.position = form.position.data
+            user.address = form.address.data
             user.check_password = generate_password_hash(form.password.data)
             db_sess.add(user)
             db_sess.commit()
